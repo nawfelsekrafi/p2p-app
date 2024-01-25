@@ -1,76 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Socket.IO chat</title>
-    <style>
-        body {
-            margin: 0;
-            padding-bottom: 3rem;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        #form {
-            background: rgba(0, 0, 0, 0.15);
-            padding: 0.25rem;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            height: 3rem;
-            box-sizing: border-box;
-            backdrop-filter: blur(10px);
-        }
-
-        #input {
-            border: none;
-            padding: 0 1rem;
-            flex-grow: 1;
-            border-radius: 2rem;
-            margin: 0.25rem;
-        }
-
-        #input:focus {
-            outline: none;
-        }
-
-        #form>button {
-            background: #333;
-            border: none;
-            padding: 0 1rem;
-            margin: 0.25rem;
-            border-radius: 3px;
-            outline: none;
-            color: #fff;
-        }
-
-        #messages {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        #messages>li {
-            padding: 0.5rem 1rem;
-        }
-
-        #messages>li:nth-child(odd) {
-            background: #efefef;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peer-to-Peer Call</title>
 </head>
 
 <body>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-        <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+    <h1>Peer-to-Peer Call Example</h1>
+    <div style="display: flex;">
+        <div>
+            <h2>Your Camera</h2>
+            <video id="localVideo" autoplay playsinline muted></video>
+        </div>
+
+        <div>
+            <h2>Remote User's Camera</h2>
+            <video id="remoteVideo" autoplay playsinline muted></video>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        console.log(navigator.mediaDevices.getUserMedia)
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then((stream) => {
+                localVideo.srcObject = stream;
+                localVideo.play();
+
+                document.addEventListener('click', () => {
+                    // Trigger remote video playback on user interaction
+                    remoteVideo.srcObject = stream;
+                    remoteVideo.play();
+                });
+
+                socket.emit('join-room', room);
+
+                socket.on('user-connected', (userId) => {
+                    console.log('User connected:', userId);
+                    // Handle user connected event (e.g., show a notification)
+                });
+
+                socket.on('user-disconnected', (userId) => {
+                    console.log('User disconnected:', userId);
+                    // Handle user disconnected event (e.g., show a notification)
+                });
+
+                socket.on('offer', (offer, targetSocketId) => {
+                    // Handle incoming offer and initiate the call
+                });
+
+                socket.on('answer', (answer) => {
+                    // Handle incoming answer
+                });
+
+                socket.on('ice-candidate', (candidate) => {
+                    // Handle incoming ICE candidate
+                });
+            })
+            .catch((error) => {
+                console.error('Error accessing media devices:', error);
+            });
+    </script>
 </body>
-<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-<script>
-    const socket = io();
-</script>
 
 </html>
